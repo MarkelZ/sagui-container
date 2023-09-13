@@ -53,18 +53,16 @@ docker run -it sagui-container
 This should open a shell.
 
 To train the guide, run:
-```
-cd /path/to/sagui
-
+```sh
 python train-guide.py --env GuideENV -s SEED --cost_lim d --logger_kwargs_str '{"output_dir": "./guide"}'
 ```
 
 If you want to test the two versions of SaGui with a well-trained guide, run:
-```
-cd /path/to/sagui
-
+```sh
 python sagui-cs.py /path/to/guide --env StudentENV -s SEED --cost_lim d --logger_kwargs_str '{"output_dir": "./xxx"}'
+```
 
+```sh
 python sagui-ld.py /path/to/guide --env StudentENV -s SEED --cost_lim d --logger_kwargs_str '{"output_dir": "./xxx"}'
 ```
 
