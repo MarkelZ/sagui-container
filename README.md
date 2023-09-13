@@ -1,6 +1,6 @@
 # Sagui Container
 
-A Docker container for replicating experiments from [Reinforcement Learning by Guided Safe Exploration](https://arxiv.org/abs/2307.14316) using adapted versions of OpenAI's [safety-gym](https://github.com/openai/safety-gym) and [SaGui](https://github.com/qisong-yang/SaGui).
+A Docker container for replicating experiments from [Reinforcement Learning by Guided Safe Exploration](https://arxiv.org/abs/2307.14316) using adapted versions of [safety-gym](https://github.com/openai/safety-gym) and [SaGui](https://github.com/qisong-yang/SaGui).
 
 
 ## Installation
