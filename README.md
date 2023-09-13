@@ -24,7 +24,7 @@ mkdir mujoco
 
 Download Mujoco 2.0 (`mujoco200.tar.gz`) from [here](https://www.roboti.us/download.html) and extract it into the `mujoco/mujoco200/` directory.
 
-Obtain the activation from [here](https://www.roboti.us/license.html) and save the downloaded file as `mjkey.txt` in the `mujoco/` directory.
+Obtain an activation key from [here](https://www.roboti.us/license.html) and save the downloaded file as `mjkey.txt` in the `mujoco/` directory.
 
 Your file structure should look like this:
 
