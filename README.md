@@ -14,7 +14,7 @@ cd sagui-container
 
 ### Step 2: Download Mujoco 2.0
 
-This code relies on `mujoco_py 2.0.2.5` which requires `mujoco200`.
+This code relies on `mujoco_py 2.0.2.5` which requires Mujoco 2.0.
 
 Create a `mujoco/` directory within `sagui-container/` to store Mujoco-related files:
 
