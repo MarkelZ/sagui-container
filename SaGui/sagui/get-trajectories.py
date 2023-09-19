@@ -530,7 +530,7 @@ if __name__ == '__main__':
         act_op = mu if deterministic else pi
         return sess_teacher.run(act_op, feed_dict={x_ph: o.reshape(1,-1)})[0]
 
-    for i in range(32):
+    for i in range(100):
         print('Trajectory: ', i)
 
         o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = teacher_env.reset(), 0, False, 0, 0, 0, 0

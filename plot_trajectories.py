@@ -9,7 +9,7 @@ all_positions = []
 
 # Loop through files in the ./positions/ folder
 folder_path = './positions/'
-for i in range(32):
+for i in range(100):
     filename = os.path.join(folder_path, f'positions{i}.txt')
     
     with open(filename, 'r') as f:
