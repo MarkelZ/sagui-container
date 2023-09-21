@@ -92,7 +92,7 @@ config_static = {
     'hazards_locations': [(0, 0)]
 }
 
-register(id='env-static',
+register(id='static-v0',
          entry_point='safety_gym.envs.mujoco:Engine',
          kwargs={'config': config_static})
 
@@ -756,7 +756,7 @@ if __name__ == '__main__':
     #                     default='{"output_dir": "./data"}')
 
     # Params for static environment (Appendix G in https://arxiv.org/abs/2307.14316)
-    parser.add_argument('--env', type=str, default='env-static')
+    parser.add_argument('--env', type=str, default='static-v0')
     parser.add_argument('--hid', type=int, default=32)
     parser.add_argument('--l', type=int, default=2)
     parser.add_argument('--gamma', type=float, default=0.99)
