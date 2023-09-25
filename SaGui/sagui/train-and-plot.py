@@ -551,7 +551,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
         act_op = mu if deterministic else pi
         return sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
 
-    def test_agent_and_save_trajectories(epoch, n=100):
+    def test_agent_and_save_positions(epoch, n=100):
         for j in range(n):
             o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = test_env.reset(), 0, False, 0, 0, 0, 0
             positions = [test_env.robot_pos]
@@ -572,7 +572,6 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
             os.makedirs(positions_path, exist_ok=True)
             with open(positions_path + 'positions' + str(i) + '.txt', 'w') as f:
                 f.write(str(positions))
-
 
     start_time = time.time()
     o, r, d, ep_ret, ep_cost, ep_len, ep_goals = env.reset(), 0, False, 0, 0, 0, 0
@@ -692,7 +691,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
 
             # Test the performance of the deterministic version of the agent.
             test_start_time = time.time()
-            test_agent()
+            test_agent_and_save_positions(epoch)
             logger.store(TestTime=time.time() - test_start_time)
 
             logger.store(EpochTime=time.time() - epoch_start_time)
