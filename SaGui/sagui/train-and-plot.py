@@ -1,6 +1,7 @@
 # Portions of the code are adapted from Safety Starter Agents and Spinning Up, released by OpenAI under the MIT license.
 #!/usr/bin/env python
 from functools import partial
+import os
 import numpy as np
 import tensorflow as tf
 import gym
