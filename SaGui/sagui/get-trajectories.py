@@ -83,6 +83,26 @@ register(id='GuideEnv-v2',
          entry_point='safety_gym.envs.mujoco:Engine',
          kwargs={'config': config3})
 
+config_static = {
+    'placements_extents': [-1.5, -1.5, 1.5, 1.5],
+    'robot_base': 'xmls/point.xml',
+    'robot_keepout': 0.0,
+    'task': 'none',
+    'observe_hazards': True,
+    'constrain_hazards': True,
+    'lidar_max_dist': 3,
+    'lidar_num_bins': 16,
+    'hazards_num': 1,
+    'hazards_size': 0.7,
+    'hazards_keepout': 0.75,
+    'hazards_locations': [(0, 0)]
+}
+
+register(id='static-v0',
+         entry_point='safety_gym.envs.mujoco:Engine',
+         kwargs={'config': config_static})
+
+
 def placeholder(dim=None):
     return tf.placeholder(dtype=tf.float32, shape=(None,dim) if dim else (None,))
 
@@ -223,34 +243,62 @@ if __name__ == '__main__':
     import json
     import argparse
     parser = argparse.ArgumentParser()
-    # parser.add_argument('--env', type=str, default='GuideEnv-v2')
-    parser.add_argument('--env', type=str, default='GuideEnv-v0')
-    parser.add_argument('--hid', type=int, default=256)
+    # # parser.add_argument('--env', type=str, default='GuideEnv-v2')
+    # parser.add_argument('--env', type=str, default='GuideEnv-v0')
+    # parser.add_argument('--hid', type=int, default=256)
+    # parser.add_argument('--l', type=int, default=2)
+    # parser.add_argument('--gamma', type=float, default=0.99)
+    # parser.add_argument('--lr', type=float, default=1e-3)
+    # parser.add_argument('--seed', '-s', type=int, default=0)
+    # # parser.add_argument('--epochs', type=int, default=300)
+    # parser.add_argument('--epochs', type=int, default=2)
+    # parser.add_argument('--exp_name', type=str, default='sac')
+    # # parser.add_argument('--steps_per_epoch', type=int, default=30000)
+    # parser.add_argument('--steps_per_epoch', type=int, default=1000)
+    # parser.add_argument('--update_freq', type=int, default=100)
+    # parser.add_argument('--cpu', type=int, default=1)
+    # # parser.add_argument('--render', default=False, action='store_true')
+    # parser.add_argument('--render', default=False, action='store_true')
+    # parser.add_argument('--local_start_steps', default=500, type=int)
+    # parser.add_argument('--local_update_after', default=500, type=int)
+    # parser.add_argument('--batch_size', default=256, type=int)
+    # parser.add_argument('--fixed_entropy_bonus', default=1.0, type=float)
+    # parser.add_argument('--entropy_constraint', type=float, default= -1)
+    # parser.add_argument('--fixed_cost_penalty', default=None, type=float)
+    # parser.add_argument('--cost_constraint', type=float, default=None)
+    # parser.add_argument('--cost_lim', type=float, default=20)
+    # parser.add_argument('--lr_s', type=int, default=50)
+    # parser.add_argument('--damp_s', type=int, default=10)
+    # parser.add_argument('--reward_b', type=float, default=1.0)
+    # parser.add_argument('--logger_kwargs_str', type=json.loads, default='{"output_dir": "./data"}')
+    # args = parser.parse_args()
+
+    # Params for static environment (Appendix G in https://arxiv.org/abs/2307.14316)
+    parser.add_argument('--env', type=str, default='static-v0')
+    parser.add_argument('--hid', type=int, default=32)
     parser.add_argument('--l', type=int, default=2)
     parser.add_argument('--gamma', type=float, default=0.99)
     parser.add_argument('--lr', type=float, default=1e-3)
     parser.add_argument('--seed', '-s', type=int, default=0)
-    # parser.add_argument('--epochs', type=int, default=300)
-    parser.add_argument('--epochs', type=int, default=2)
+    parser.add_argument('--epochs', type=int, default=50)
     parser.add_argument('--exp_name', type=str, default='sac')
-    # parser.add_argument('--steps_per_epoch', type=int, default=30000)
-    parser.add_argument('--steps_per_epoch', type=int, default=1000)
+    parser.add_argument('--steps_per_epoch', type=int, default=30000)
     parser.add_argument('--update_freq', type=int, default=100)
     parser.add_argument('--cpu', type=int, default=1)
-    # parser.add_argument('--render', default=False, action='store_true')
     parser.add_argument('--render', default=False, action='store_true')
     parser.add_argument('--local_start_steps', default=500, type=int)
     parser.add_argument('--local_update_after', default=500, type=int)
-    parser.add_argument('--batch_size', default=256, type=int)
+    parser.add_argument('--batch_size', default=32, type=int)
     parser.add_argument('--fixed_entropy_bonus', default=1.0, type=float)
-    parser.add_argument('--entropy_constraint', type=float, default= -1)
+    parser.add_argument('--entropy_constraint', type=float, default=-1)
     parser.add_argument('--fixed_cost_penalty', default=None, type=float)
     parser.add_argument('--cost_constraint', type=float, default=None)
-    parser.add_argument('--cost_lim', type=float, default=20)
+    parser.add_argument('--cost_lim', type=float, default=5)
     parser.add_argument('--lr_s', type=int, default=50)
     parser.add_argument('--damp_s', type=int, default=10)
     parser.add_argument('--reward_b', type=float, default=1.0)
-    parser.add_argument('--logger_kwargs_str', type=json.loads, default='{"output_dir": "./data"}')
+    parser.add_argument('--logger_kwargs_str', type=json.loads,
+                        default='{"output_dir": "./data"}')
     args = parser.parse_args()
 
     try:
