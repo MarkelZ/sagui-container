@@ -1,16 +1,15 @@
-################################################################
-# safety-gym
-################################################################
-
 # Set python 3.7
 FROM python:3.7
 
 # Create a virtual environment
 RUN python3.7 -m venv venv
-ENV PATH="/safety_gym/venv/bin:$PATH"
+
+# Copy repo to the container
+WORKDIR /sagui-container/
+COPY . /sagui-container/
 
 # Copy mujoco to docker user's home directory
-COPY ./mujoco/ /root/.mujoco/
+RUN mv /sagui-container/mujoco/ /root/.mujoco/
 
 # Install required libraries
 RUN apt-get update && apt-get install -y libosmesa6-dev libgl1-mesa-glx libglfw3 patchelf apt-utils libopenmpi-dev 
@@ -25,21 +24,16 @@ RUN pip install -r requirements1.txt
 COPY requirements2.txt /
 RUN pip install -r requirements2.txt
 
-# Set up working directory
-WORKDIR /safety_gym/
-COPY ./safety-gym/ /safety_gym/
-COPY ./safety-gym/safety_gym/ /safety_gym/
-
-# Install project
+# Install safety-gym
+WORKDIR /sagui-container/safety-gym/
 RUN pip install -e .
 
-# Set up working directory
-WORKDIR /sagui/
-COPY ./SaGui/ /sagui/
-COPY ./SaGui/sagui/ /sagui/
-
-# Install project
+# Install SaGui
+WORKDIR /sagui-container/SaGui/
 RUN pip install -e .
+
+# Switch to main working directory
+WORKDIR /sagui-container/
 
 # Use a shell as the entry point
 ENTRYPOINT ["/bin/bash"]
