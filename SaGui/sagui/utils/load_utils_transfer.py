@@ -1,5 +1,5 @@
 import joblib
-import os.path as osp
+import os
 import tensorflow as tf
 from sagui.utils.logx import restore_tf_graph
 
@@ -17,7 +17,7 @@ def load_policy_transfer(fpath, itr='last'):
     sess = tf.Session(graph=tf.Graph())
 
     # model = restore_tf_graph(sess, osp.join(fpath, 'simple_save'+itr))
-    model = restore_tf_graph(sess, osp.join(fpath, 'tf1_save'+itr))
+    model = restore_tf_graph(sess, os.path.join(fpath, 'tf1_save'+itr))
 
     # get the correct op for executing actions
     
@@ -31,7 +31,7 @@ def load_policy_transfer(fpath, itr='last'):
     # try to load environment from save
     # (sometimes this will fail because the environment could not be pickled)
     try:
-        state = joblib.load(osp.join(fpath, 'vars'+itr+'.pkl'))
+        state = joblib.load(os.path.join(fpath, 'vars'+itr+'.pkl'))
         env = state['env']
     except:
         env = None
