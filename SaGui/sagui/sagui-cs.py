@@ -708,8 +708,7 @@ if __name__ == '__main__':
     import json
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('fpath', type=str)
-    parser.add_argument('--itr', '-i', type=int, default=-1)
+    # parser.add_argument('--itr', '-i', type=int, default=-1)
     parser.add_argument('--env', type=str, default='Safexp-PointGoal1-v0')
     parser.add_argument('--hid', type=int, default=256)
     parser.add_argument('--l', type=int, default=2)
@@ -732,7 +731,7 @@ if __name__ == '__main__':
     parser.add_argument('--cost_lim', type=float, default=25)
     parser.add_argument('--lr_s', type=int, default=50)
     parser.add_argument('--damp_s', type=int, default=10)
-    parser.add_argument('--logger_kwargs_str', type=json.loads, default='{"output_dir": "./data"}')
+    parser.add_argument('--logger_kwargs_str', type=json.loads, default='{"output_dir": "./data_sagui-cs"}')
     args = parser.parse_args()
 
     try:
@@ -747,7 +746,7 @@ if __name__ == '__main__':
     logger_kwargs = setup_logger_kwargs(args.exp_name, args.seed)
     logger_kwargs= args.logger_kwargs_str
     
-    teacher_env, get_logp_a, get_teacher_a, _ = load_policy_transfer(args.fpath, args.itr if args.itr >= 0 else 'last')
+    teacher_env, get_logp_a, get_teacher_a, _ = load_policy_transfer('data_static-v0/', 4)
     
     _teacher_size = teacher_env.obs_flat_size
     _teacher_keys = teacher_env.obs_space_dict.keys()
