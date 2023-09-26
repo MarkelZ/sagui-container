@@ -120,3 +120,4 @@ mujoco/*
 plot/plot.png
 plot/positions/
 SaGui/sagui/positions/
+SaGui/sagui/plot.png
