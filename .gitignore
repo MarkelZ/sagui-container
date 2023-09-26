@@ -119,3 +119,4 @@ mujoco/*
 # Misc
 plot/plot.png
 plot/positions/
+SaGui/sagui/positions/
