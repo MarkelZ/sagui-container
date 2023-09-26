@@ -39,5 +39,6 @@ plt.legend()
 
 # Show the plot
 plt.grid()
-plt.show()
+# plt.show()
+plt.savefig('./plot.png')
 

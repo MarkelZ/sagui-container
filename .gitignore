@@ -115,3 +115,7 @@ data
 
 # mujoco source
 mujoco/*
+
+# Misc
+plot/plot.png
+plot/positions/
