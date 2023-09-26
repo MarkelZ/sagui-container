@@ -33,7 +33,7 @@ WORKDIR /sagui-container/SaGui/
 RUN pip install -e .
 
 # Switch to main working directory
-WORKDIR /sagui-container/
+WORKDIR /sagui-container/SaGui/sagui
 
 # Use a shell as the entry point
 ENTRYPOINT ["/bin/bash"]
