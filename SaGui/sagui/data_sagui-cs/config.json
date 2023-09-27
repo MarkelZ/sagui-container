@@ -1,0 +1,56 @@
+{
+    "ac_kwargs":	{
+        "hidden_sizes":	[
+            256,
+            256
+        ]
+    },
+    "actor_fn":	"mlp_actor",
+    "batch_size":	256,
+    "cost_constraint":	null,
+    "cost_lim":	25,
+    "critic_fn":	"mlp_critic",
+    "damp_scale":	10,
+    "entropy_constraint":	-1,
+    "env_fn":	"<function <lambda> at 0x7fba4829b9e0>",
+    "epochs":	150,
+    "fixed_cost_penalty":	null,
+    "fixed_entropy_bonus":	null,
+    "gamma":	0.99,
+    "get_logp_a_fn":	"<function load_policy_transfer.<locals>.<lambda> at 0x7fba99225290>",
+    "get_teacher_a_fn":	"<function load_policy_transfer.<locals>.<lambda> at 0x7fba99225560>",
+    "local_start_steps":	500,
+    "local_update_after":	500,
+    "logger":	{
+        "<sagui.utils.logx.EpochLogger object at 0x7fba4822a850>":	{
+            "epoch_dict":	{},
+            "exp_name":	null,
+            "first_row":	true,
+            "log_current_row":	{},
+            "log_headers":	[],
+            "output_dir":	"./data_sagui-cs",
+            "output_file":	{
+                "<_io.TextIOWrapper name='./data_sagui-cs/progress.txt' mode='w' encoding='UTF-8'>":	{
+                    "mode":	"w"
+                }
+            }
+        }
+    },
+    "logger_kwargs":	{
+        "output_dir":	"./data_sagui-cs"
+    },
+    "lr":	0.001,
+    "lr_scale":	50,
+    "max_ep_len":	1000,
+    "polyak":	0.995,
+    "render":	false,
+    "replay_size":	1000000,
+    "reward_scale":	1,
+    "save_freq":	10,
+    "seed":	0,
+    "steps_per_epoch":	30000,
+    "teacher_keys":	"odict_keys(['accelerometer', 'velocimeter', 'gyro', 'magnetometer', 'hazards_lidar'])",
+    "teacher_size":	"28",
+    "update_freq":	100,
+    "use_costs":	25
+}

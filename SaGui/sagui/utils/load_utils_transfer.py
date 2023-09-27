@@ -2,6 +2,7 @@ import joblib
 import os
 import tensorflow as tf
 from sagui.utils.logx import restore_tf_graph
+from safety_gym.envs.engine import Engine
 
 def load_policy_transfer(fpath, itr='last'):
 
@@ -32,7 +33,7 @@ def load_policy_transfer(fpath, itr='last'):
     # (sometimes this will fail because the environment could not be pickled)
     try:
         state = joblib.load(os.path.join(fpath, 'vars'+itr+'.pkl'))
-        env = state['env']
+        env: Engine = state['env']
     except:
         env = None
 

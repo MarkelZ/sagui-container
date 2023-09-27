@@ -499,17 +499,36 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
     logger.setup_tf_saver(sess, inputs={'x': x_ph, 'a': a_ph},
                                 outputs={'mu': mu, 'pi': pi, 'qr1': qr1, 'qr2': qr2, 'qc': qc})
     
-    def obs_abs(student_env):
-        obs = {}
-        flat_obs = np.zeros(teacher_size)
-        offset = 0
-        obs = student_env.obs_dic
-        for k in sorted(student_env.obs_space_dict.keys()):
+    # def obs_abs(student_env):
+    #     obs = {}
+    #     flat_obs = np.zeros(teacher_size)
+    #     offset = 0
+    #     obs = student_env.obs_dic
+    #     for k in sorted(student_env.obs_space_dict.keys()):
+    #         if k in teacher_keys:
+    #             k_size = np.prod(obs[k].shape)
+    #             flat_obs[offset:offset + k_size] = obs[k].flat
+    #             offset += k_size
+    #     return flat_obs
+
+    def obs_abs(student_env: Engine):
+        student_obs_dic = student_env.obs_space_dict
+
+        student_flat_obs = student_env.obs()
+        teacher_flat_obs = np.zeros(teacher_size)
+
+        student_offset = 0
+        teacher_offset = 0
+        for k in sorted(student_obs_dic.keys()):
+            obs = student_obs_dic[k]
+            k_size = np.prod(obs.shape)
             if k in teacher_keys:
-                k_size = np.prod(obs[k].shape)
-                flat_obs[offset:offset + k_size] = obs[k].flat
-                offset += k_size
-        return flat_obs
+                vals = student_flat_obs[student_offset:student_offset+k_size]
+                teacher_flat_obs[teacher_offset:teacher_offset+k_size] = vals
+                teacher_offset += k_size
+            student_offset += k_size
+        return teacher_flat_obs
+
 
     def get_action(o, deterministic=False):
         act_op = mu if deterministic else pi
@@ -703,7 +722,7 @@ if __name__ == '__main__':
     import json
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('fpath', type=str)
+    # parser.add_argument('fpath', type=str)
     parser.add_argument('--itr', '-i', type=int, default=-1)
     parser.add_argument('--env', type=str, default='Safexp-PointGoal1-v0')
     parser.add_argument('--hid', type=int, default=256)
@@ -742,7 +761,7 @@ if __name__ == '__main__':
     logger_kwargs = setup_logger_kwargs(args.exp_name, args.seed)
     logger_kwargs= args.logger_kwargs_str
     
-    teacher_env, get_logp_a, get_teacher_a, _ = load_policy_transfer(args.fpath, args.itr if args.itr >= 0 else 'last')
+    teacher_env, get_logp_a, get_teacher_a, _ = load_policy_transfer('data_static-v0/', 4)
     
     _teacher_size = teacher_env.obs_flat_size
     _teacher_keys = teacher_env.obs_space_dict.keys()

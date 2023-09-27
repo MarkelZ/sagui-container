@@ -498,17 +498,35 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
     logger.setup_tf_saver(sess, inputs={'x': x_ph, 'a': a_ph},
                                 outputs={'mu': mu, 'pi': pi, 'qr1': qr1, 'qr2': qr2, 'qc': qc})
     
-    def obs_abs(student_env):
-        obs = {}
-        flat_obs = np.zeros(teacher_size)
-        offset = 0
-        obs = student_env.obs_dic
-        for k in sorted(student_env.obs_space_dict.keys()):
+    # def obs_abs(student_env: Engine):
+    #     obs = {}
+    #     flat_obs = np.zeros(teacher_size)
+    #     offset = 0
+    #     obs = student_env.obs_dic
+    #     for k in sorted(student_env.obs_space_dict.keys()):
+    #         if k in teacher_keys:
+    #             k_size = np.prod(obs[k].shape)
+    #             flat_obs[offset:offset + k_size] = obs[k].flat
+    #             offset += k_size
+    #     return flat_obs
+
+    def obs_abs(student_env: Engine):
+        student_obs_dic = student_env.obs_space_dict
+
+        student_flat_obs = student_env.obs()
+        teacher_flat_obs = np.zeros(teacher_size)
+
+        student_offset = 0
+        teacher_offset = 0
+        for k in sorted(student_obs_dic.keys()):
+            obs = student_obs_dic[k]
+            k_size = np.prod(obs.shape)
             if k in teacher_keys:
-                k_size = np.prod(obs[k].shape)
-                flat_obs[offset:offset + k_size] = obs[k].flat
-                offset += k_size
-        return flat_obs
+                vals = student_flat_obs[student_offset:student_offset+k_size]
+                teacher_flat_obs[teacher_offset:teacher_offset+k_size] = vals
+                teacher_offset += k_size
+            student_offset += k_size
+        return teacher_flat_obs
 
     def get_action(o, deterministic=False):
         act_op = mu if deterministic else pi
