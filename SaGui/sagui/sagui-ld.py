@@ -10,7 +10,7 @@ from sagui.utils.logx import EpochLogger
 from sagui.utils.mpi_tf import sync_all_params, MpiAdamOptimizer
 from sagui.utils.mpi_tools import mpi_fork, mpi_sum, proc_id, mpi_statistics_scalar, num_procs
 from safety_gym.envs.engine import Engine
-from gym.envs.registration import register
+from sagui.env_configs import register_configs
 
 from sagui.utils.load_utils_transfer import load_policy_transfer
 from sagui.utils.logx import EpochLogger
@@ -19,76 +19,7 @@ import random
 
 EPS = 1e-8
 
-config1 = {
-        'placements_extents': [-1.5, -1.5, 1.5, 1.5],
-        'robot_base': 'xmls/point.xml',
-        'task': 'goal',
-        'goal_size': 0.3,
-        'goal_keepout': 0.305,
-        'goal_locations': [(1.1, 1.1)],
-        'observe_goal_lidar': True,
-        'observe_hazards': True,
-        'constrain_hazards': True,
-        'lidar_max_dist': 3,
-        'lidar_num_bins': 16,
-        'hazards_num': 1,
-        'hazards_size': 0.7,
-        'hazards_keepout': 0.705,
-        'hazards_locations': [(0, 0)]
-        }
-
-register(id='StudentEnv-v0',
-         entry_point='safety_gym.envs.mujoco:Engine',
-         kwargs={'config': config1})
-
-config2 = {
-        'placements_extents': [-2, -2, 2, 2],
-        'robot_base': 'xmls/car.xml',
-        'task': 'goal',
-        'goal_size': 0.3,
-        'goal_keepout': 0.305,
-        'observe_goal_lidar': True,
-        'observe_hazards': True,
-        'observe_vases': True,
-        'constrain_hazards': True,
-        'constrain_vases': True,
-        'lidar_max_dist': 3,
-        'lidar_num_bins': 16,
-        'hazards_num': 4,
-        'hazards_size': 0.2,
-        'hazards_keepout': 0.18,
-        'hazards_locations': [(1.0, 1.0),(1,-1),(-0.2,0.2),(-1.4,-1.4)],
-        'vases_num': 4,
-        'vases_size': 0.2,
-        'vases_keepout': 0.18,
-        'vases_locations': [(-1.0, -1.0),(-1,1),(0.2,-0.2),(1.4,1.4)]
-        }
-
-register(id='StudentEnv-v1',
-         entry_point='safety_gym.envs.mujoco:Engine',
-         kwargs={'config': config2})
-
-config3 = {
-        'placements_extents': [-1.5, -1.5, 1.5, 1.5],
-        'robot_base': 'xmls/point.xml',
-        'task': 'goal',
-        'goal_size': 0.3,
-        'goal_keepout': 0.305,
-        'observe_goal_lidar': True,
-        'constrain_hazards': True,
-        'observe_hazards': True,
-        'observe_vases': True,
-        'lidar_max_dist': 3,
-        'lidar_num_bins': 16,
-        'hazards_num': 8,
-        'hazards_size': 0.2,
-        'hazards_keepout': 0.18,
-        'vases_num': 1,
-        }
-
-register(id='StudentEnv-v2',
-         entry_point='safety_gym.envs.mujoco:Engine',
-         kwargs={'config': config3})
+register_configs()
 
 def placeholder(dim=None):
     return tf.placeholder(dtype=tf.float32, shape=(None,dim) if dim else (None,))
