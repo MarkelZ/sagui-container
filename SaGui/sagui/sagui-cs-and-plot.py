@@ -708,7 +708,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     # parser.add_argument('--itr', '-i', type=int, default=-1)
-    parser.add_argument('--env', type=str, default='Safexp-PointGoal1-v0')
+    parser.add_argument('--env', type=str, default='StudentEnv-v0')
     # parser.add_argument('--hid', type=int, default=256)
     parser.add_argument('--hid', type=int, default=32)
     parser.add_argument('--l', type=int, default=2)
