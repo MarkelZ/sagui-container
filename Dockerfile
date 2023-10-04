@@ -8,6 +8,10 @@ RUN python3.7 -m venv venv
 WORKDIR /sagui-container/
 COPY . /sagui-container/
 
+# Update repository
+RUN git fetch
+RUN git pull
+
 # Copy mujoco to docker user's home directory
 RUN mv /sagui-container/mujoco/ /root/.mujoco/
 
