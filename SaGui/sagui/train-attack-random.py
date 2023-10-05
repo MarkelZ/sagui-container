@@ -96,10 +96,11 @@ def mlp_gaussian_policy_pert(x, a, hidden_sizes, activation, output_activation):
     log_std = tf.clip_by_value(log_std, LOG_STD_MIN, LOG_STD_MAX)
     std = tf.exp(log_std)
 
-    noise_min, noise_max = -0.5, 0.5
+    mu = tf.layers.dense(net, act_dim, activation=output_activation)
+
+    noise_min, noise_max = -0.1, 0.1
     noise = tf.random.uniform(tf.shape(mu), minval=noise_min, maxval=noise_max, dtype=tf.float32)
 
-    mu = tf.layers.dense(net, act_dim, activation=output_activation)
     mu_pert = mu + noise
     pi = mu_pert + tf.random_normal(tf.shape(mu_pert)) * std
     logp_pi = gaussian_likelihood(pi, mu_pert, log_std)
@@ -500,7 +501,8 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
 
     def get_action(o, deterministic=False):
         act_op = mu if deterministic else pi
-        return sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
+        a = sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
+        return a
 
     def test_agent_and_save_positions(epoch, n=100):
         for j in range(n):
