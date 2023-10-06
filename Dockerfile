@@ -36,4 +36,4 @@ RUN pip install -e .
 WORKDIR /sagui-container/SaGui/sagui
 
 # Use a shell as the entry point
-ENTRYPOINT git fetch && git pull && ["/bin/bash"]
+ENTRYPOINT ["sh", "-c", "git fetch && git pull && /bin/bash"]
