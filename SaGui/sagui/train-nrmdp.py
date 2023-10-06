@@ -172,7 +172,7 @@ Soft Actor-Critic
 """
 
 
-def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed=0,
+def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed=0,
         steps_per_epoch=1000, epochs=100, replay_size=int(1e6), gamma=0.99,
         polyak=0.995, lr=1e-4, batch_size=1024, local_start_steps=int(1e3),
         max_ep_len=1000, logger_kwargs=dict(), save_freq=10, local_update_after=int(1e3),
@@ -314,6 +314,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
     # Main outputs from computation graph
     with tf.variable_scope('main'):
         mu, pi, logp_pi, logp_a = actor_fn(x_ph, a_ph, **ac_kwargs)
+        mu_adv, pi_adv, logp_pi_adv, logp_a_adv = adversary_fn(x_ph, a_ph, **ac_kwargs)
         qr1, qr1_pi = critic_fn(x_ph, a_ph, pi, name='qr1', **ac_kwargs)
         qr2, qr2_pi = critic_fn(x_ph, a_ph, pi, name='qr2', **ac_kwargs)
         qc, qc_pi = critic_fn(x_ph, a_ph, pi, name='qc', **ac_kwargs)
@@ -469,6 +470,10 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
         act_op = mu if deterministic else pi
         return sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
 
+    def get_action_adv(o, deterministic=False):
+        act_op = mu_adv if deterministic else pi_adv
+        return sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
+
     def test_agent(n=10):
         for j in range(n):
             o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = test_env.reset(), 0, False, 0, 0, 0, 0
@@ -513,7 +518,9 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
         """
 
         if t > local_start_steps:
-            a = get_action(o)
+            a_actor = get_action(o)
+            a_adv = get_action_adv(o)
+            a = 0.9 * a_actor + 0.1 * a_adv # TODO: Remove hardcoded values
         else:
             a = env.action_space.sample()
 
@@ -713,7 +720,7 @@ if __name__ == '__main__':
     logger_kwargs = setup_logger_kwargs(args.exp_name, args.seed)
     logger_kwargs = args.logger_kwargs_str
 
-    sac(lambda: gym.make(args.env), actor_fn=mlp_actor, critic_fn=mlp_critic,
+    sac(lambda: gym.make(args.env), actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic,
         ac_kwargs=dict(hidden_sizes=[args.hid]*args.l),
         gamma=args.gamma, seed=args.seed, epochs=args.epochs, batch_size=args.batch_size,
         logger_kwargs=logger_kwargs, steps_per_epoch=args.steps_per_epoch,
