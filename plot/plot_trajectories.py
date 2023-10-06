@@ -30,8 +30,8 @@ hazard_circle = Circle((0, 0), 0.7, color='red', label='Hazard')
 plt.gca().add_patch(hazard_circle)
 
 # Add a green goal circle
-goal_circle = Circle((1.1, 1.1), 0.3, color='lime', label='Goal')
-plt.gca().add_patch(goal_circle)
+# goal_circle = Circle((1.1, 1.1), 0.3, color='lime', label='Goal')
+# plt.gca().add_patch(goal_circle)
 
 # Add labels and title
 plt.xlabel('X Position')
