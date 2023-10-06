@@ -17,6 +17,7 @@ EPS = 1e-8
 
 register_configs()
 
+
 def placeholder(dim=None):
     return tf.placeholder(dtype=tf.float32, shape=(None, dim) if dim else (None,))
 
@@ -82,33 +83,8 @@ def mlp_gaussian_policy(x, a, hidden_sizes, activation, output_activation):
     logp_pi = gaussian_likelihood(pi, mu, log_std)
     logp_a = gaussian_likelihood(a, mu, log_std)
 
-    for _ in range(100):
-        print('HEY, WATCH OUT: Using MLP policy WITH NO PERTURBATIONS!')
-        print('YOU ARE PRETTY MUCH RUNNING train-guide.py')
-
     return mu, pi, logp_pi, logp_a
 
-def mlp_gaussian_policy_pert(x, a, hidden_sizes, activation, output_activation):
-    act_dim = a.shape.as_list()[-1]
-    net = mlp(x, list(hidden_sizes), activation, activation)
-
-    log_std = tf.layers.dense(net, act_dim, activation=None)
-    log_std = tf.clip_by_value(log_std, LOG_STD_MIN, LOG_STD_MAX)
-    std = tf.exp(log_std)
-
-    mu = tf.layers.dense(net, act_dim, activation=output_activation)
-
-    noise_min, noise_max = -0.1, 0.1
-    noise = tf.random.uniform(tf.shape(mu), minval=noise_min, maxval=noise_max, dtype=tf.float32)
-
-    mu_pert = mu + noise
-    pi = mu_pert + tf.random_normal(tf.shape(mu_pert)) * std
-    logp_pi = gaussian_likelihood(pi, mu_pert, log_std)
-    logp_a = gaussian_likelihood(a, mu_pert, log_std)
-
-    print('Using mlp policy with PERTURBATIONS! :)')
-
-    return mu_pert, pi, logp_pi, logp_a
 
 def apply_squashing_func(mu, pi, a, logp_pi, logp_a):
     # Adjustment to log prob
@@ -142,6 +118,7 @@ def mlp_actor(x, a, name='pi', hidden_sizes=(64, 64), activation=tf.nn.relu,
     pi *= action_scale
 
     return mu, pi, logp_pi, logp_a
+
 
 def mlp_critic(x, a, pi, name, hidden_sizes=(64, 64), activation=tf.nn.relu,
                output_activation=None, policy=mlp_gaussian_policy, action_space=None):
@@ -316,6 +293,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
     logger.save_config(locals())
 
     # Env instantiation
+    env: Engine
     env, test_env = env_fn(), env_fn()
 
     obs_dim = env.observation_space.shape[0]
@@ -504,6 +482,13 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
         a = sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
         return a
 
+    def get_noisy_action(o, deterministic=False):
+        act_op = mu if deterministic else pi
+        a = sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
+        noise = np.random.uniform(-0.25, 0.25, size=a.shape)
+        noisy_a = a + noise
+        return noisy_a
+
     def test_agent_and_save_positions(epoch, n=100):
         for j in range(n):
             o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = test_env.reset(), 0, False, 0, 0, 0, 0
@@ -555,7 +540,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
         """
 
         if t > local_start_steps:
-            a = get_action(o)
+            a = get_noisy_action(o)
         else:
             a = env.action_space.sample()
 
@@ -757,7 +742,7 @@ if __name__ == '__main__':
 
     # !!! NOTICE THAT I USE mlp_gaussian_policy_PERT !!!
     sac(lambda: gym.make(args.env), actor_fn=mlp_actor, critic_fn=mlp_critic,
-        ac_kwargs=dict(hidden_sizes=[args.hid]*args.l, policy=mlp_gaussian_policy_pert),
+        ac_kwargs=dict(hidden_sizes=[args.hid] * args.l),
         gamma=args.gamma, seed=args.seed, epochs=args.epochs, batch_size=args.batch_size,
         logger_kwargs=logger_kwargs, steps_per_epoch=args.steps_per_epoch,
         update_freq=args.update_freq, lr=args.lr, render=args.render,
