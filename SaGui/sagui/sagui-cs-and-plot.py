@@ -516,6 +516,7 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
             positions_path = './positions' + str(epoch) + '/'
             os.makedirs(positions_path, exist_ok=True)
             with open(positions_path + 'positions' + str(j) + '.txt', 'w') as f:
+                f.write('{:.6f}'.format(ep_cost) + '\n')
                 f.write(str(positions))
 
     start_time = time.time()
