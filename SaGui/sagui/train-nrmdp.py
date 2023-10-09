@@ -116,6 +116,21 @@ def mlp_actor(x, a, name='pi', hidden_sizes=(64, 64), activation=tf.nn.relu,
 
     return mu, pi, logp_pi, logp_a
 
+def mlp_adv(x, a, name='pi_adv', hidden_sizes=(64, 64), activation=tf.nn.relu,
+              output_activation=None, policy=mlp_gaussian_policy, action_space=None):
+    # policy
+    with tf.variable_scope(name):
+        mu, pi, logp_pi, logp_a = policy(
+            x, a, hidden_sizes, activation, output_activation)
+        mu, pi, logp_pi, logp_a = apply_squashing_func(
+            mu, pi, a, logp_pi, logp_a)
+
+    # make sure actions are in correct range
+    action_scale = action_space.high[0]
+    mu *= action_scale
+    pi *= action_scale
+
+    return mu, pi, logp_pi, logp_a
 
 def mlp_critic(x, a, pi, name, hidden_sizes=(64, 64), activation=tf.nn.relu,
                output_activation=None, policy=mlp_gaussian_policy, action_space=None):
@@ -173,7 +188,7 @@ Soft Actor-Critic
 """
 
 
-def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed=0,
+def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_adv, critic_fn=mlp_critic, ac_kwargs=dict(), seed=0,
         steps_per_epoch=1000, epochs=100, replay_size=int(1e6), gamma=0.99,
         polyak=0.995, lr=1e-4, batch_size=1024, local_start_steps=int(1e3),
         max_ep_len=1000, logger_kwargs=dict(), save_freq=10, local_update_after=int(1e3),
@@ -290,6 +305,7 @@ def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic
     logger.save_config(locals())
 
     # Env instantiation
+    env: Engine
     env, test_env = env_fn(), env_fn()
 
     obs_dim = env.observation_space.shape[0]
@@ -729,7 +745,7 @@ if __name__ == '__main__':
     logger_kwargs = setup_logger_kwargs(args.exp_name, args.seed)
     logger_kwargs = args.logger_kwargs_str
 
-    sac(lambda: gym.make(args.env), actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic,
+    sac(lambda: gym.make(args.env), actor_fn=mlp_actor, adversary_fn=mlp_adv, critic_fn=mlp_critic,
         ac_kwargs=dict(hidden_sizes=[args.hid]*args.l),
         gamma=args.gamma, seed=args.seed, epochs=args.epochs, batch_size=args.batch_size,
         logger_kwargs=logger_kwargs, steps_per_epoch=args.steps_per_epoch,
