@@ -1,2 +1,2 @@
 tar -cvf data.tar.gz data
-tar -cvf position.tar.gz positions*
+tar -cvf positions.tar.gz positions*
