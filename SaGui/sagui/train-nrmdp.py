@@ -195,7 +195,7 @@ def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_adv, critic_fn=mlp_critic, 
         update_freq=1, render=False,
         fixed_entropy_bonus=None, entropy_constraint=-1.0,
         fixed_cost_penalty=None, cost_constraint=None, cost_lim=None,
-        reward_scale=1, lr_scale=1, damp_scale=0, reward_bonus=0.0,
+        reward_scale=1, lr_scale=1, damp_scale=0, reward_bonus=0.0, pert_weight=0.1
         ):
     """
 
@@ -545,7 +545,7 @@ def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_adv, critic_fn=mlp_critic, 
         if t > local_start_steps:
             a_actor = get_action(o)
             a_adv = get_action_adv(o)
-            a = 0.9 * a_actor + 0.1 * a_adv # TODO: Remove hardcoded values
+            a = (1 - pert_weight) * a_actor + pert_weight * a_adv
         else:
             a = env.action_space.sample()
 
@@ -729,6 +729,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_s', type=int, default=50)
     parser.add_argument('--damp_s', type=int, default=10)
     parser.add_argument('--reward_b', type=float, default=1.0)
+    parser.add_argument('--pert_weight', type=float, default=0.1)
     parser.add_argument('--logger_kwargs_str', type=json.loads,
                         default='{"output_dir": "./data"}')
     args = parser.parse_args()
@@ -752,5 +753,6 @@ if __name__ == '__main__':
         update_freq=args.update_freq, lr=args.lr, render=args.render,
         local_start_steps=args.local_start_steps, local_update_after=args.local_update_after,
         fixed_entropy_bonus=args.fixed_entropy_bonus, entropy_constraint=args.entropy_constraint,
-        fixed_cost_penalty=args.fixed_cost_penalty, cost_constraint=args.cost_constraint, cost_lim=args.cost_lim, lr_scale=args.lr_s, damp_scale=args.damp_s, reward_bonus=args.reward_b,
+        fixed_cost_penalty=args.fixed_cost_penalty, cost_constraint=args.cost_constraint, cost_lim=args.cost_lim, 
+        lr_scale=args.lr_s, damp_scale=args.damp_s, reward_bonus=args.reward_b, pert_weight=args.pert_weight
         )
