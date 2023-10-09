@@ -1,6 +1,7 @@
 # Portions of the code are adapted from Safety Starter Agents and Spinning Up, released by OpenAI under the MIT license.
 #!/usr/bin/env python
 from functools import partial
+import os
 import numpy as np
 import tensorflow as tf
 import gym
@@ -474,9 +475,10 @@ def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic
         act_op = mu_adv if deterministic else pi_adv
         return sess.run(act_op, feed_dict={x_ph: o.reshape(1, -1)})[0]
 
-    def test_agent(n=10):
+    def test_agent_and_save_positions(epoch, n=100):
         for j in range(n):
             o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = test_env.reset(), 0, False, 0, 0, 0, 0
+            positions = [test_env.robot_pos]
             while not (d or (ep_len == max_ep_len)):
                 # Take deterministic actions at test time
                 o, r, d, info = test_env.step(get_action(o, True))
@@ -486,8 +488,15 @@ def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic
                 ep_cost += info.get('cost', 0)
                 ep_len += 1
                 ep_goals += 1 if info.get('goal_met', False) else 0
+                positions.append(test_env.robot_pos)
             logger.store(TestEpRet=ep_ret, TestEpCost=ep_cost,
                          TestEpLen=ep_len, TestEpGoals=ep_goals)
+
+            positions_path = './positions' + str(epoch) + '/'
+            os.makedirs(positions_path, exist_ok=True)
+            with open(positions_path + 'positions' + str(j) + '.txt', 'w') as f:
+                f.write('{:.6f}'.format(ep_cost) + '\n')
+                f.write(str(positions))
 
     start_time = time.time()
     o, r, d, ep_ret, ep_cost, ep_len, ep_goals = env.reset(), 0, False, 0, 0, 0, 0
@@ -609,7 +618,7 @@ def sac(env_fn, actor_fn=mlp_actor, adversary_fn=mlp_actor, critic_fn=mlp_critic
 
             # Test the performance of the deterministic version of the agent.
             test_start_time = time.time()
-            test_agent()
+            test_agent_and_save_positions(epoch)
             logger.store(TestTime=time.time() - test_start_time)
 
             logger.store(EpochTime=time.time() - epoch_start_time)
