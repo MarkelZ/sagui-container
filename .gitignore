@@ -117,7 +117,8 @@ data
 mujoco/*
 
 # Misc
-plot/plot.png
+plot/*.png
+plot/*.txt
 plot/positions*
 SaGui/sagui/positions/
 SaGui/sagui/plot.png
