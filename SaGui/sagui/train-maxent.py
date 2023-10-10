@@ -492,6 +492,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
             positions_path = './positions' + str(epoch) + '/'
             os.makedirs(positions_path, exist_ok=True)
             with open(positions_path + 'positions' + str(j) + '.txt', 'w') as f:
+                f.write('{:.6f}'.format(ep_cost) + '\n')
                 f.write(str(positions))
 
     start_time = time.time()
