@@ -11,14 +11,14 @@ def load_policy(fpath, itr='last', deterministic=False):
 
     # handle which epoch to load from
     if itr=='last':
-        saves = [int(x[11:]) for x in os.listdir(fpath) if 'simple_save' in x and len(x)>11]
+        saves = [int(x[11:]) for x in os.listdir(fpath) if 'tf1_save' in x and len(x)>11]
         itr = '%d'%max(saves) if len(saves) > 0 else ''
     else:
         itr = '%d'%itr
 
     # load the things!
     sess = tf.Session(graph=tf.Graph())
-    model = restore_tf_graph(sess, osp.join(fpath, 'simple_save'+itr))
+    model = restore_tf_graph(sess, osp.join(fpath, 'tf1_save'+itr))
 
     # get the correct op for executing actions
     if deterministic and 'mu' in model.keys():
