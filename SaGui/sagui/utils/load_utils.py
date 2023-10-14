@@ -4,6 +4,7 @@ import joblib
 import os
 import os.path as osp
 import tensorflow as tf
+from safety_gym.envs.engine import Engine
 from sagui.utils.logx import restore_tf_graph
 
 def load_policy(fpath, itr='last', deterministic=False):
@@ -35,7 +36,7 @@ def load_policy(fpath, itr='last', deterministic=False):
     # (sometimes this will fail because the environment could not be pickled)
     try:
         state = joblib.load(osp.join(fpath, 'vars'+itr+'.pkl'))
-        env = state['env']
+        env: Engine = state['env']
     except:
         env = None
 
