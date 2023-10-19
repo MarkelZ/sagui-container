@@ -493,40 +493,42 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
                 f.write('{:.6f}'.format(ep_cost) + '\n')
                 f.write(str(positions))
 
-    def test_robustness_and_save_positions():
-        sim = test_env.robot.sim
+    def modify_constants(the_env, coef_dic: dict):
+        model = the_env.model
+        for coef, val in coef_dic.items():
+            atr = getattr(model, coef)
+            for index, _ in np.ndenumerate(atr):
+                atr[index] = val
 
-        n = len(sim.model.body_mass)
-        for i in range(n):
-            sim.model.body_mass[i] *= 100
+    def _test_robust_and_save(coef_dic, n=100):
+        for j in range(n):
+            o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = test_env.reset(), 0, False, 0, 0, 0, 0
+            modify_constants(test_env, coef_dic)
+            positions = [test_env.robot_pos]
+            while not (d or (ep_len == max_ep_len)):
+                # Take deterministic actions at test time
+                o, r, d, info = test_env.step(get_action(o, True))
+                ep_ret += r
+                ep_cost += info.get('cost', 0)
+                ep_len += 1
+                ep_goals += 1 if info.get('goal_met', False) else 0
+                positions.append(test_env.robot_pos)
+            logger.store(TestEpRet=ep_ret, TestEpCost=ep_cost,
+                            TestEpLen=ep_len, TestEpGoals=ep_goals)
 
-        n = len(sim.model.geom_friction)
-        for i in range(n):
-            m = len(sim.model.geom_friction[i])
-            for j in range(m):
-                sim.model.geom_friction[i, j] *= 0.001
+            positions_path = './positions'
+            for key, val in coef_dic.items():
+                positions_path += f';{key}={val}'
+            os.makedirs(positions_path, exist_ok=True)
+            with open(positions_path + 'positions' + str(j) + '.txt', 'w') as f:
+                f.write('{:.6f}'.format(ep_cost) + '\n')
+                f.write(str(positions))
 
-        test_agent_and_save_positions(epoch='_himass_lofric')
-
-        n = len(sim.model.body_mass)
-        for i in range(n):
-            sim.model.body_mass[i] *= 0.0001
-
-        test_agent_and_save_positions(epoch='_lomass_lofric')
-
-        n = len(sim.model.geom_friction)
-        for i in range(n):
-            m = len(sim.model.geom_friction[i])
-            for j in range(m):
-                sim.model.geom_friction[i, j] *= 100000
-
-        test_agent_and_save_positions(epoch='_lomass_hifric')
-
-        n = len(sim.model.body_mass)
-        for i in range(n):
-            sim.model.body_mass[i] *= 10000
-
-        test_agent_and_save_positions(epoch='_himass_hifric')
+    def test_robustness():
+        for mass in np.arange(start=0, stop=0.02, step=0.002):
+            for fric in np.arange(start=0, stop=0.01, step=0.001):
+                coef_dic = {'body_mass' : mass, 'dof_frictionloss' : fric}
+                _test_robust_and_save(coef_dic)
 
 
     start_time = time.time()
@@ -655,7 +657,7 @@ def sac(env_fn, actor_fn=mlp_actor, critic_fn=mlp_critic, ac_kwargs=dict(), seed
 
             # Test robustness
             if epoch == 49:
-                test_robustness_and_save_positions()
+                test_robustness()
 
             # Log info about epoch
             logger.log_tabular('Epoch', epoch)
