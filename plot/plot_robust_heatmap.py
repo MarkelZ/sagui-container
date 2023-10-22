@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from pathlib import Path
-import numpy as np
+from math import log1p
 
 
 # Path to saves
@@ -35,7 +35,7 @@ for dir in path.iterdir():
     avg_cost = total_cost / count
 
     # Add new entry for the heatmap
-    entries[(param_vals[0], param_vals[1])] = avg_cost
+    entries[(param_vals[0], param_vals[1])] = log1p(avg_cost)  # ln(x+1)
 
 
 # Extract x and y coordinates and values from the dictionary
@@ -44,11 +44,11 @@ y = [k[1] for k in entries.keys()]
 values = list(entries.values())
 
 # Create the heatmap
-plt.scatter(x, y, c=values, cmap='viridis', s=500)
+plt.scatter(x, y, c=values, cmap='viridis', vmin=0, vmax=4, s=500)
 plt.colorbar()
 plt.xlabel('Body mass')
 plt.ylabel('DOF friction')
-plt.title('Average cost of the deterministic policy')
+plt.title('Logarithmic avg. cost of the det. policy')
 
 # plt.show()
 plt.savefig('plot.png')
