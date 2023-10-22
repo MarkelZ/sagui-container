@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import os
 from typing import Callable
 import numpy as np
 from sagui.utils.load_utils import load_policy
@@ -8,7 +7,9 @@ from multiprocessing.dummy import Pool
 from multiprocessing.pool import ThreadPool
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
+from time import time
 
+t0 = time()
 
 
 def modify_constants(env: Engine, coef_dic: dict):
@@ -54,7 +55,7 @@ def plot_trajectories(n):
     # Plot trajectories
     for i in range(n):
         print(f'Trajectory {i}')
-        o, d, ep_cost = env.reset(), False, 0, 
+        o, d, ep_cost = env.reset(), False, 0,
         positions = [env.robot_pos]
         while not d:
             a = get_action(o)
@@ -98,7 +99,7 @@ num_procs = 10
 coef_list = []
 for mass in np.arange(start=0, stop=0.02, step=0.002):
     for fric in np.arange(start=0, stop=0.01, step=0.001):
-        coef_dic = {'body_mass' : mass, 'dof_frictionloss' : fric}
+        coef_dic = {'body_mass': mass, 'dof_frictionloss': fric}
         coef_list.append(coef_dic)
 
 # Split the list of coefficients into equal chunks
@@ -107,7 +108,6 @@ coef_sublists = np.array_split(coef_list, num_procs)
 
 # Create a thread pool and compute the robustness values
 pool: ThreadPool = Pool(num_procs)
-print(type(pool))
 results = pool.map(eval_coefs_robust, coef_sublists)
 
 # Close the pool and join the threads
@@ -121,3 +121,6 @@ res_str = '[\n' + ',\n'.join(res_flat) + '\n]'
 # Save the results in a text file
 with open('./robust_results.txt', 'w') as f:
     f.write(res_str)
+
+t = time() - t0
+print(f'Elapsed time: {t}')
