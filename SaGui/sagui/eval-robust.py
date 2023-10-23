@@ -3,13 +3,8 @@ from typing import Callable
 import numpy as np
 from sagui.utils.load_utils import load_policy
 from safety_gym.envs.engine import Engine
-from multiprocessing.dummy import Pool
-from multiprocessing.pool import ThreadPool
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
-from time import time
-
-t0 = time()
+from sagui.utils.mpi_tools import mpi_fork
+from mpi4py import MPI
 
 
 def modify_constants(env: Engine, coef_dic: dict):
@@ -35,12 +30,12 @@ def eval_robust(n, coefs: dict, env: Engine, get_action: Callable[[np.ndarray], 
     return accum_cost / n
 
 
-def eval_coefs_robust(coef_list: list):
+def eval_coefs_robust(coef_list: list, rank: int):
     env, get_action, _ = load_policy('data/', itr=4, deterministic=True)
 
     res = []
     for coefs in coef_list:
-        print(f'Evaluating:\n{coefs}')
+        print(f'Proc. {rank} with: {coefs}')
         cost = eval_robust(100, coefs, env, get_action)
         v = (coefs, cost)
         res.append(v)
@@ -48,79 +43,41 @@ def eval_coefs_robust(coef_list: list):
     return res
 
 
-def plot_trajectories(n):
-    # Load from save
-    env, get_action, _ = load_policy('data/', itr=4, deterministic=True)
+if __name__ == '__main__':
+    # Fork using mpi
+    num_procs = 8
+    mpi_fork(num_procs)
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
 
-    # Plot trajectories
-    for i in range(n):
-        print(f'Trajectory {i}')
-        o, d, ep_cost = env.reset(), False, 0,
-        positions = [env.robot_pos]
-        while not d:
-            a = get_action(o)
-            o, _, d, info = env.step(a)
-            ep_cost += info.get('cost', 0)
-            positions.append(env.robot_pos)
+    # Create a list of coefficients
+    coef_list = []
+    eps = 1e-9
+    for mass in np.arange(start=eps, stop=0.02+eps, step=0.002):
+        for fric in np.arange(start=0, stop=0.01, step=0.001):
+            coef_dic = {'body_mass': mass, 'dof_frictionloss': fric}
+            coef_list.append(coef_dic)
 
-        positions = np.array(positions)
-        x_positions = positions[:, 0]
-        y_positions = positions[:, 1]
+    # Split the list of coefficients into equal chunks
+    coef_list = np.array(coef_list)
+    coef_sublists = np.array_split(coef_list, num_procs)
 
-        color = 'blue' if ep_cost == 0 else 'black'
-        plt.plot(x_positions, y_positions, color=color)
+    # Select corresponding chunk of data
+    coefs_chunk = coef_sublists[rank]
 
-    # Add dummy trajectories for the legend
-    plt.plot([], [], color='blue', label='Safe')
-    plt.plot([], [], color='black', label='Unsafe')
+    # Calculate the results
+    results = eval_coefs_robust(coefs_chunk, rank)
 
-    # Draw hazard
-    hazard_circle = Circle((0, 0), 0.7, color='red', label='Hazard')
-    plt.gca().add_patch(hazard_circle)
+    # Gather results
+    all_results = comm.gather(results, root=0)
 
-    # Plot settings
-    plt.xlabel('X Position')
-    plt.ylabel('Y Position')
-    plt.title('Robot Trajectories')
-    plt.legend()
-    plt.grid()
+    if rank == 0:
+        # Flatten the results and turn them into a string
+        res_flat = [x for r in all_results for x in r]
+        res_str = '[\n' + ',\n'.join(res_flat) + '\n]'
 
-    # Save plot
-    plt.savefig('./plot.png')
+        # Save the results in a text file
+        with open('./robust_results.txt', 'w') as f:
+            f.write(res_str)
 
-
-# First, plot trajectories to make sure everything works
-plot_trajectories(100)
-
-# Number of processes
-num_procs = 10
-
-# Create a list of coefficients
-coef_list = []
-for mass in np.arange(start=0, stop=0.02, step=0.002):
-    for fric in np.arange(start=0, stop=0.01, step=0.001):
-        coef_dic = {'body_mass': mass, 'dof_frictionloss': fric}
-        coef_list.append(coef_dic)
-
-# Split the list of coefficients into equal chunks
-coef_list = np.array(coef_list)
-coef_sublists = np.array_split(coef_list, num_procs)
-
-# Create a thread pool and compute the robustness values
-pool: ThreadPool = Pool(num_procs)
-results = pool.map(eval_coefs_robust, coef_sublists)
-
-# Close the pool and join the threads
-pool.close()
-pool.join()
-
-# Flatten the results and turn them into a string
-res_flat = [x for r in results for x in r]
-res_str = '[\n' + ',\n'.join(res_flat) + '\n]'
-
-# Save the results in a text file
-with open('./robust_results.txt', 'w') as f:
-    f.write(res_str)
-
-t = time() - t0
-print(f'Elapsed time: {t}')
+    MPI.Finalize()
