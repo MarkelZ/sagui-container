@@ -4,10 +4,6 @@ FROM python:3.7
 # Create a virtual environment
 RUN python3.7 -m venv venv
 
-# Create and switch to a non-root user
-RUN useradd -ms /bin/bash dockeruser
-USER dockeruser
-
 # Copy repo to the container
 WORKDIR /sagui-container/
 COPY . /sagui-container/
