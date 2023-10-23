@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     if rank == 0:
         # Flatten the results and turn them into a string
-        res_flat = [x for r in all_results for x in r]
+        res_flat = [str(x) for r in all_results for x in r]
         res_str = '[\n' + ',\n'.join(res_flat) + '\n]'
 
         # Save the results in a text file
