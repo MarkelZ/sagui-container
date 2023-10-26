@@ -123,5 +123,6 @@ plot/*.csv
 plot/positions*
 SaGui/sagui/positions/
 SaGui/sagui/plot.png
-Sagui/sagui/data*
+SaGui/sagui/data*
+SaGui/sagui/robust_results.txt
 positions*

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
+import os
+import subprocess
+import sys
 from typing import Callable
 import numpy as np
 from sagui.utils.load_utils import load_policy
 from safety_gym.envs.engine import Engine
-from sagui.utils.mpi_tools import mpi_fork
 from mpi4py import MPI
 
 
@@ -43,6 +45,22 @@ def eval_coefs_robust(coef_list: list, rank: int):
     return res
 
 
+def mpi_fork(n):
+    if os.getenv("IN_MPI") is None:
+        env = os.environ.copy()
+        env.update(
+            MKL_NUM_THREADS="1",
+            OMP_NUM_THREADS="1",
+            IN_MPI="1"
+        )
+        # Notice: We allow running as root because it is a Docker container!
+        args = ["mpirun", "-np", str(n), "--allow-run-as-root"]
+        args += [sys.executable] + sys.argv
+        subprocess.check_call(args, env=env)
+        sys.exit()
+
+
+# Main
 if __name__ == '__main__':
     # Fork using mpi
     num_procs = 8
@@ -73,7 +91,7 @@ if __name__ == '__main__':
 
     if rank == 0:
         # Flatten the results and turn them into a string
-        res_flat = [x for r in all_results for x in r]
+        res_flat = [str(x) for r in all_results for x in r]
         res_str = '[\n' + ',\n'.join(res_flat) + '\n]'
 
         # Save the results in a text file
