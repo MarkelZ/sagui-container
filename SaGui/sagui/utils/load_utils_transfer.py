@@ -9,7 +9,7 @@ def load_policy_transfer(fpath, itr='last'):
     # handle which epoch to load from
     if itr=='last':
         # saves = [int(x[11:]) for x in os.listdir(fpath) if 'simple_save' in x and len(x)>11]
-        saves = [int(x[11:]) for x in os.listdir(fpath) if 'tf1_save' in x and len(x)>11]
+        saves = [int(x[11:]) for x in os.listdir(fpath) if 'simple_save' in x and len(x)>11]
         itr = '%d'%max(saves) if len(saves) > 0 else ''
     else:
         itr = '%d'%itr
@@ -18,7 +18,7 @@ def load_policy_transfer(fpath, itr='last'):
     sess = tf.Session(graph=tf.Graph())
 
     # model = restore_tf_graph(sess, osp.join(fpath, 'simple_save'+itr))
-    model = restore_tf_graph(sess, os.path.join(fpath, 'tf1_save'+itr))
+    model = restore_tf_graph(sess, os.path.join(fpath, 'simple_save'+itr))
 
     # get the correct op for executing actions
     
