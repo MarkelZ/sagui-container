@@ -179,16 +179,6 @@ class ReplayBuffer:
                     done=self.done_buf[idxs])
 
 
-"""
-Robustness
-"""
-def modify_constants(env: Engine, coef_dic: dict):
-    model = env.model
-    for coef, val in coef_dic.items():
-        atr = getattr(model, coef)
-        for index, _ in np.ndenumerate(atr):
-            atr[index] = val
-
 
 """
 Soft Actor-Critic
@@ -287,7 +277,6 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
 
     # Env instantiation
     env, test_env = env_fn(), env_fn()
-    modify_constants(env, {'body_mass': 0.004, 'dof_frictionloss': 0.001}) # worst-case dynamics
 
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.shape[0]
@@ -502,6 +491,12 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
     def get_logp_a_student(o, a):
         return sess.run(logp_a, feed_dict={x_ph: o.reshape(1, -1), a_ph: a.reshape(1, -1)})[0]
 
+    def modify_constants(env: Engine, coef_dic: dict):
+        model = env.model
+        for coef, val in coef_dic.items():
+            atr = getattr(model, coef)
+            for index, _ in np.ndenumerate(atr):
+                atr[index] = val
 
     def test_agent(n=100):
         for j in range(n):
