@@ -27,4 +27,4 @@ plot_and_save("AverageEpCost")
 plot_and_save("AverageTestEpCost")
 
 # Plot LossAlpha
-plot_and_save("LossAlpha")
+plot_and_save("PiEntropy")
