@@ -58,6 +58,8 @@ for i, mass in enumerate(np.linspace(0.0001, 0.03, size)):
         ax = axs[i, j]
         ax.plot(x_positions, y_positions)
         ax.set_title(f'Mass={"{:.4f}".format(mass)}; Fric={"{:.4f}".format(fric)}')
+        ax.set_xlim(-0.5, 0.5)
+        ax.set_ylim(-0.1, 0.9)
 
         # Add labels and title
         # plt.xlabel('X Position')
