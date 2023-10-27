@@ -32,7 +32,7 @@ for positions in safe_positions:
     plt.plot(x_positions, y_positions, color='blue')
 
 # Create dummy line for the legend
-plt.plot([], [], label='Safe', color='blue')
+plt.plot([], [], label='Zero cost (safe)', color='blue')
 
 # Plot unsafe trajectories
 for positions in unsafe_positions:
@@ -41,7 +41,7 @@ for positions in unsafe_positions:
     plt.plot(x_positions, y_positions, color='black')
 
 # Create dummy line for the legend
-plt.plot([], [], label='Unsafe', color='black')
+plt.plot([], [], label='Non-zero cost (unsafe)', color='black')
 
 # Add a red hazard circle
 hazard_circle = Circle((0, 0), 0.7, color='red', label='Hazard')
