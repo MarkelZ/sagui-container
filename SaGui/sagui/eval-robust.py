@@ -78,10 +78,8 @@ if __name__ == '__main__':
 
     # Create a list of coefficients
     coef_list = []
-    eps = 1e-8
-    steps = 16
-    for mass in np.linspace(eps, 0.015, steps):
-        for fric in np.linspace(eps, 0.01, steps):
+    for mass in np.linspace(1e-8, 1e-6, 50):
+        for fric in np.linspace(1e-8, 0.01, 8):
             coef_dic = {'body_mass': mass, 'dof_frictionloss': fric}
             coef_list.append(coef_dic)
 
