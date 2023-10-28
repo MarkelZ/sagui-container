@@ -65,7 +65,7 @@ if __name__ == '__main__':
     proc_eps =  total_eps // num_procs # Number of episodes per processor
 
     # Calculate the results
-    cum_cost = get_cum_cost(proc_eps, {'body_mass': 0.004, 'dof_frictionloss': 0.001})
+    cum_cost = get_cum_cost(proc_eps, {'body_mass': 1e-9, 'dof_frictionloss': 0.008})
 
     # Gather results
     all_cum_costs = comm.gather(cum_cost, root=0)
