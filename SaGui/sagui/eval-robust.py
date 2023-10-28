@@ -33,7 +33,7 @@ def eval_robust(n, coefs: dict, env: Engine, get_action: Callable[[np.ndarray], 
 
 
 def eval_coefs_robust(coef_list: list, rank: int):
-    env, get_action, _ = load_policy('data/', itr=4, deterministic=True)
+    env, get_action, _ = load_policy('data/', itr=4, deterministic=False)
 
     res = []
     for coefs in coef_list:
@@ -68,11 +68,20 @@ if __name__ == '__main__':
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
+    # # Create a list of coefficients
+    # coef_list = []
+    # eps = 1e-9
+    # for mass in np.arange(start=eps, stop=0.02+eps, step=0.002):
+    #     for fric in np.arange(start=0, stop=0.01, step=0.001):
+    #         coef_dic = {'body_mass': mass, 'dof_frictionloss': fric}
+    #         coef_list.append(coef_dic)
+
     # Create a list of coefficients
     coef_list = []
     eps = 1e-9
-    for mass in np.arange(start=eps, stop=0.02+eps, step=0.002):
-        for fric in np.arange(start=0, stop=0.01, step=0.001):
+    steps = 16
+    for mass in np.linspace(eps, 0.015, steps):
+        for fric in np.linspace(eps, 0.01, steps):
             coef_dic = {'body_mass': mass, 'dof_frictionloss': fric}
             coef_list.append(coef_dic)
 
