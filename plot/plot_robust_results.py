@@ -25,7 +25,7 @@ plt.scatter(x, y, c=values, cmap='viridis', vmin=0, vmax=40, s=500)
 plt.colorbar()
 plt.xlabel('Body mass')
 plt.ylabel('DOF friction')
-plt.title('Logarithmic avg. cost of the det. policy')
+plt.title('Avg. cost of the deterministic policy')
 
 # Adjust plot to fit 
 x_min, x_max = min(x), max(x)
