@@ -18,7 +18,7 @@ def modify_constants(the_env, coef_dic: dict):
 
 def get_cum_cost(num_eps, coef_dic, num_steps=1000):
     # Load model and environment
-    env, get_action, _ = load_policy('data/', itr=4, deterministic=True)
+    env, get_action, _ = load_policy('data/', itr=4, deterministic=False)
     env.num_steps = num_steps
 
     cum_cost = 0
@@ -61,11 +61,11 @@ if __name__ == '__main__':
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
 
-    total_eps = 800 # Total number of episodes
+    total_eps = 400 # Total number of episodes
     proc_eps =  total_eps // num_procs # Number of episodes per processor
 
     # Calculate the results
-    cum_cost = get_cum_cost(proc_eps, {'body_mass': 1e-9, 'dof_frictionloss': 0.008})
+    cum_cost = get_cum_cost(proc_eps, {'body_mass': 1e-8, 'dof_frictionloss': 1e-8})
 
     # Gather results
     all_cum_costs = comm.gather(cum_cost, root=0)

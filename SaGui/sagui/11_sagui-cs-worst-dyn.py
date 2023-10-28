@@ -498,7 +498,7 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
             for index, _ in np.ndenumerate(atr):
                 atr[index] = val
 
-    worst_case_coefs = {'body_mass': 1e-9, 'dof_frictionloss': 0.008}
+    worst_case_coefs = {'body_mass': 1e-8, 'dof_frictionloss': 1e-8}
 
     def test_agent(n=100):
         for j in range(n):

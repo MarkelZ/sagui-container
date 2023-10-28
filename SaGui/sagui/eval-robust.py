@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     # Create a list of coefficients
     coef_list = []
-    eps = 1e-9
+    eps = 1e-8
     steps = 16
     for mass in np.linspace(eps, 0.015, steps):
         for fric in np.linspace(eps, 0.01, steps):
