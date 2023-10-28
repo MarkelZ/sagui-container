@@ -498,10 +498,12 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
             for index, _ in np.ndenumerate(atr):
                 atr[index] = val
 
+    worst_case_coefs = {'body_mass': 1e-9, 'dof_frictionloss': 0.008}
+
     def test_agent(n=100):
         for j in range(n):
             o, r, d, ep_ret, ep_cost, ep_len, ep_goals, = test_env.reset(), 0, False, 0, 0, 0, 0
-            modify_constants(test_env, {'body_mass': 0.004, 'dof_frictionloss': 0.001}) # worst-case dynamics
+            modify_constants(test_env, worst_case_coefs)
             while not (d or (ep_len == max_ep_len)):
                 # Take deterministic actions at test time
                 o, r, d, info = test_env.step(get_action(o))
@@ -516,7 +518,7 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
 
     start_time = time.time()
     o, r, d, ep_ret, ep_cost, ep_len, ep_goals = env.reset(), 0, False, 0, 0, 0, 0
-    modify_constants(env, {'body_mass': 0.004, 'dof_frictionloss': 0.001}) # worst-case dynamics
+    modify_constants(env, worst_case_coefs)
     total_steps = steps_per_epoch * epochs
 
     # variables to measure in an update
@@ -599,7 +601,7 @@ def sac(env_fn, get_logp_a_fn, get_teacher_a_fn, teacher_size, teacher_keys, act
             logger.store(EpRet=ep_ret, EpCost=ep_cost,
                          EpLen=ep_len, EpGoals=ep_goals)
             o, r, d, ep_ret, ep_cost, ep_len, ep_goals = env.reset(), 0, False, 0, 0, 0, 0
-            modify_constants(env, {'body_mass': 0.004, 'dof_frictionloss': 0.001}) # worst-case dynamics
+            modify_constants(env, worst_case_coefs)
 
         if t > 0 and t % update_freq == 0 and replay_buffer_tea.size > local_batch_size and replay_buffer_stu.size > local_batch_size:
             for j in range(update_freq):
