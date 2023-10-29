@@ -33,7 +33,7 @@ def eval_robust(n, coefs: dict, env: Engine, get_action: Callable[[np.ndarray], 
 
 
 def eval_coefs_robust(coef_list: list, rank: int):
-    env, get_action, _ = load_policy('data/', itr=4, deterministic=False)
+    env, get_action, _ = load_policy('data/', itr=4, deterministic=True)
 
     res = []
     for coefs in coef_list:
