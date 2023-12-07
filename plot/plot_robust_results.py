@@ -28,11 +28,11 @@ plt.ylabel('DOF friction')
 plt.title('Avg. cost of the deterministic policy')
 
 # Adjust plot to fit 
-x_min, x_max = min(x), max(x)
-y_min, y_max = min(y), max(y)
-margin = 0.001
-plt.xlim(x_min-margin, x_max+margin)
-plt.ylim(y_min-margin, y_max+margin)
+#x_min, x_max = min(x), max(x)
+#y_min, y_max = min(y), max(y)
+#margin = 0.001
+#plt.xlim(x_min-margin, x_max+margin)
+#plt.ylim(y_min-margin, y_max+margin)
 
-# plt.show()
-plt.savefig('plot.png')
+plt.show()
+#plt.savefig('plot.png')
